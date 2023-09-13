@@ -30,7 +30,6 @@ func philosopher(id int, ate *[]int, sending1, sending2 chan bool, receiving1, r
 			}
 
 		case <-time.After(100 * time.Millisecond):
-			fmt.Println("test ", id)
 			receiving1 <- "not take"
 		}
 
@@ -52,7 +51,7 @@ func fork(id string, sending chan bool, receiving chan string) {
 		} else if receive == "not take" {
 			sending <- available
 		}
-		time.Sleep(time.Millisecond * 100)
+		// time.Sleep(time.Millisecond * 100)
 	}
 }
 
