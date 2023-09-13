@@ -9,25 +9,32 @@ func philosopher(id int, ate *[]int, sending1, sending2 chan bool, receiving1, r
 	eating := false
 	for {
 		fork1 := <-sending1
-		fork2 := <-sending2
-		if eating {
-			eating = false
-			fmt.Println("Philo", id, ": Now thinking")
-			(*ate)[id]++
-			receiving1 <- "put back"
-			receiving2 <- "put back"
-		} else {
-			if fork1 && fork2 {
-				receiving1 <- "take"
-				receiving2 <- "take"
-				eating = true
-				fmt.Println("Philo", id, ": Now eating")
+		select {
+		case fork2 := <-sending2:
+			if eating {
+				eating = false
+				fmt.Println("Philo", id, ": Now thinking")
+				(*ate)[id]++
+				receiving1 <- "put back"
+				receiving2 <- "put back"
 			} else {
-				receiving1 <- "not take"
-				receiving2 <- "not take"
+				if fork1 && fork2 {
+					receiving1 <- "take"
+					receiving2 <- "take"
+					eating = true
+					fmt.Println("Philo", id, ": Now eating")
+				} else {
+					receiving1 <- "not take"
+					receiving2 <- "not take"
+				}
 			}
+
+		case <-time.After(100 * time.Millisecond):
+			fmt.Println("test ", id)
+			receiving1 <- "not take"
 		}
-		time.Sleep(time.Millisecond * 100)
+
+		//time.Sleep(time.Millisecond * 100)
 	}
 }
 
